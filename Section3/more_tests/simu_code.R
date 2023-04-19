@@ -28,10 +28,10 @@ simu_vs_fun <- function(K, n, p, p_c, p_s, sigma, sigma0, prior_vec_list) {
   for (iter_prior in seq_len(n_prior_vec)) {
     prior_vec <- prior_vec_list[[iter_prior]]
     res_c <- sum_single_effect_multi(dta_list,
-                                     scale_x = TRUE, intercept = TRUE,
-                                     sigma02_int = NULL, sigma2_int = NULL,
-                                     L = p_c + K * p_s + K,
-                                     prior_vec = prior_vec
+      scale_x = TRUE, intercept = TRUE,
+      sigma02_int = NULL, sigma2_int = NULL,
+      L = p_c + K * p_s + K,
+      prior_vec = prior_vec
     )
     index_res_c <- list()
     sens_res_c <- rep(NA, K)
@@ -103,120 +103,44 @@ out_res <- foreach(iter = seq_len(iter_sim_max)) %dorng% {
 stopCluster(cl)
 saveRDS(out_res, paste0("Section3/more_tests/results/out_res.rds"))
 
-# ############################### check results ###############################
-# library(ggplot2)
-# library(gridExtra)
-# 
-# ## plot figures
-# for (iter_pc in seq_len(length(p_c_vec))) {
-#   p_c <- p_c_vec[iter_pc]
-#   for (iter_ps in seq_len(length(p_s_vec))) {
-#     p_s <- p_s_vec[iter_ps]
-#     out_res <- readRDS(paste0("simulation_vs/K", K, "results/", "n", n,
-#                               "p", p, "sigma", sigma, "pc", p_c, "ps", p_s, ".rds"))
-#     n_iter <- length(out_res)
-#     out_df <- matrix(unlist(out_res), nrow = n_iter, ncol = length(out_res[[1]]),
-#                      byrow = TRUE)
-#     cat(p, "&", n, "&", p_c, "&", p_s, "&", sigma^2, "&", 
-#         round(colMeans(out_df), 4), "\n")
-#     # colnames(out_df) <- c("sens_mu", "sens_si", "prec_mu", "prec_si")
-#     # out_df <- as.data.frame(out_df)
-#     # 
-#     # ## plot sensitivity
-#     # out_sens <- data.frame(sens = c(out_df$sens_mu, out_df$sens_si),
-#     #                        group = c(rep("multiple", n_iter), rep("single", n_iter)))
-#     # p1 <- ggplot(out_sens, aes(x = group, y = sens, fill = group)) +
-#     #   geom_boxplot() +
-#     #   xlab("method") + ylab("sensitivity") + ylim(c(0, 1)) +
-#     #   scale_colour_manual(values = c("red", "green4"), breaks = c("multiple", "single")) +
-#     #   theme_bw()
-#     # # plot precision
-#     # out_prec <- data.frame(prec = c(out_df$prec_mu, out_df$prec_si),
-#     #                        group = c(rep("multiple", n_iter), rep("single", n_iter)))
-#     # p2 <- ggplot(out_prec, aes(x = group, y = prec, fill = group)) +
-#     #   geom_boxplot() +
-#     #   xlab("method") + ylab("precision") + ylim(c(0, 1)) +
-#     #   scale_colour_manual(values = c("red", "green4"), breaks = c("multiple", "single")) +
-#     #   theme_bw()
-#     # # output
-#     # layout_matrix <- matrix(c(1, 2), nrow = 1)
-#     # pdf(file = paste0("simulation_vs/K", K, "results/", "n", n,
-#     #                   "p", p, "sigma", sigma, "pc", p_c, "ps", p_s, ".pdf"), width = 10, height = 6.18)
-#     # grid.arrange(p1, p2, layout_matrix = layout_matrix)
-#     # dev.off()
-#   }
-# }
-# 
-# # ############################### plot one figure ###############################
-# # ## define parameters
-# # K <- 2
-# # sigma <- 1
-# # p_c <- 10
-# # p_s <- 2
-# # # first two figures
-# # n <- 100
-# # p <- 600
-# # out_res <- readRDS(paste0("simulation_vs/K", K, "results/", "n", n,
-# #                           "p", p, "sigma", sigma, "pc", p_c, "ps", p_s, ".rds"))
-# # n_iter <- length(out_res)
-# # out_df <- matrix(unlist(out_res), nrow = n_iter, ncol = length(out_res[[1]]),
-# #                  byrow = TRUE)
-# # cat(p, "&", n, "&", p_c, "&", p_s, "&", round(colMeans(out_df), 4), "\n")
-# # colnames(out_df) <- c("sens_mu", "sens_si", "prec_mu", "prec_si")
-# # out_df <- as.data.frame(out_df)
-# # 
-# # ## plot sensitivity
-# # out_sens <- data.frame(sens = c(out_df$sens_mu, out_df$sens_si),
-# #                        group = c(rep("multiple", n_iter), rep("single", n_iter)))
-# # p1 <- ggplot(out_sens, aes(x = group, y = sens, fill = group)) +
-# #   geom_boxplot() +
-# #   labs(title = "sensitivity for p = 600 and  n = 100") +
-# #   xlab("method") + ylab("sensitivity") + ylim(c(0, 1)) +
-# #   scale_colour_manual(values = c("red", "green4"), breaks = c("multiple", "single")) +
-# #   theme_bw()
-# # # plot precision
-# # out_prec <- data.frame(prec = c(out_df$prec_mu, out_df$prec_si),
-# #                        group = c(rep("multiple", n_iter), rep("single", n_iter)))
-# # p2 <- ggplot(out_prec, aes(x = group, y = prec, fill = group)) +
-# #   geom_boxplot() +
-# #   labs(title = "precision for p = 600 and  n = 100") +
-# #   xlab("method") + ylab("precision") + ylim(c(0, 1)) +
-# #   scale_colour_manual(values = c("red", "green4"), breaks = c("multiple", "single")) +
-# #   theme_bw()
-# # 
-# # # second two figures
-# # n <- 500
-# # p <- 1000
-# # out_res <- readRDS(paste0("simulation_vs/K", K, "results/", "n", n,
-# #                           "p", p, "sigma", sigma, "pc", p_c, "ps", p_s, ".rds"))
-# # n_iter <- length(out_res)
-# # out_df <- matrix(unlist(out_res), nrow = n_iter, ncol = length(out_res[[1]]),
-# #                  byrow = TRUE)
-# # cat(p, "&", n, "&", p_c, "&", p_s, "&", round(colMeans(out_df), 4), "\n")
-# # colnames(out_df) <- c("sens_mu", "sens_si", "prec_mu", "prec_si")
-# # out_df <- as.data.frame(out_df)
-# # 
-# # ## plot sensitivity
-# # out_sens <- data.frame(sens = c(out_df$sens_mu, out_df$sens_si),
-# #                        group = c(rep("multiple", n_iter), rep("single", n_iter)))
-# # p3 <- ggplot(out_sens, aes(x = group, y = sens, fill = group)) +
-# #   geom_boxplot() +
-# #   labs(title = "sensitivity for p = 1000 and  n = 500") +
-# #   xlab("method") + ylab("sensitivity") + ylim(c(0, 1)) +
-# #   scale_colour_manual(values = c("red", "green4"), breaks = c("multiple", "single")) +
-# #   theme_bw()
-# # # plot precision
-# # out_prec <- data.frame(prec = c(out_df$prec_mu, out_df$prec_si),
-# #                        group = c(rep("multiple", n_iter), rep("single", n_iter)))
-# # p4 <- ggplot(out_prec, aes(x = group, y = prec, fill = group)) +
-# #   geom_boxplot() +
-# #   labs(title = "precision for p = 1000 and  n = 500") +
-# #   xlab("method") + ylab("precision") + ylim(c(0, 1)) +
-# #   scale_colour_manual(values = c("red", "green4"), breaks = c("multiple", "single")) +
-# #   theme_bw()
-# # 
-# # ## output figure
-# # pdf(file = paste0("simulation_vs/K", K, "results/", "n", n,
-# #                   "p", p, "sigma", sigma, ".pdf"), width = 10, height = 6.18)
-# # grid.arrange(p1, p2, p3, p4, layout_matrix = layout_matrix)
-# # dev.off()
+############################### check results ###############################
+n_prior <- length(prior_vec_list)
+library(ggplot2)
+library(gridExtra)
+out_res <- readRDS(paste0("Section3/more_tests/results/out_res.rds"))
+n_iter <- length(out_res)
+out_df <- matrix(unlist(out_res),
+  nrow = n_iter, ncol = 2 * n_prior,
+  byrow = TRUE
+)
+out_df <- as.data.frame(out_df)
+
+## plot sensitivity
+out_sens <- data.frame(
+  sens = unlist((out_df[, seq_len(n_prior)])),
+  group = rep(paste0("prior", seq_len(n_prior)), each = n_iter)
+)
+out_sens$group <- as.factor(out_sens$group)
+p1 <- ggplot(out_sens, aes(x = group, y = sens, fill = group)) +
+  geom_boxplot() +
+  labs(title = "Sensitivity for different priors") +
+  xlab("") +
+  ylab("Sensitivity") +
+  theme_bw(base_size = 22) +
+  theme(legend.position = "bottom")
+ggsave("Section3/more_tests/results/sens_res.pdf", p1, width = 10, height = 8)
+
+## plot precision
+out_prec <- data.frame(
+  prec = unlist((out_df[, (n_prior + 1):(2 * n_prior)])),
+  group = rep(paste0("prior", seq_len(n_prior)), each = n_iter)
+)
+out_prec$group <- as.factor(out_prec$group)
+p2 <- ggplot(out_prec, aes(x = group, y = prec, fill = group)) +
+  geom_boxplot() +
+  labs(title = "Precision for different priors") +
+  xlab("") +
+  ylab("Precision") +
+  theme_bw(base_size = 22) +
+  theme(legend.position = "bottom")
+ggsave("Section3/more_tests/results/prec_res.pdf", p2, width = 10, height = 8)
