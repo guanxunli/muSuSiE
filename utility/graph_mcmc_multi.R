@@ -87,7 +87,7 @@ Graph_MCMC_multi <- function(dta_list, scale_x = FALSE, intercept = TRUE, com_ma
   }
   ## begin iteration
   for (iter_MCMC in seq_len(iter_max)) {
-    if (iter_MCMC %% 1000 == 0) print(iter_MCMC)
+    # if (iter_MCMC %% 1000 == 0) print(iter_MCMC)
     ## Initialize proposal
     dta_pro_list <- list()
     for (iter_K in seq_len(K)) {
