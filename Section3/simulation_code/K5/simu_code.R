@@ -176,7 +176,7 @@ for (iter_set in seq_len(nrow(set_df))) {
     for (p_c in p_c_vec) {
       for (p_s in p_s_vec) {
         out_res <- readRDS(paste0(
-          "Section3/simulation_code/K2/results/K", K, "n", n,
+          "Section3/simulation_code/K5/results/K", K, "n", n,
           "p", p, "sigma", sigma, "pc", p_c, "ps", p_s, ".rds"
         ))
         n_iter <- length(out_res)
@@ -201,7 +201,7 @@ for (iter_set in seq_len(nrow(set_df))) {
     for (p_c in p_c_vec) {
       for (p_s in p_s_vec) {
         out_res <- readRDS(paste0(
-          "Section3/simulation_code/K2/results/K", K, "n", n,
+          "Section3/simulation_code/K5/results/K", K, "n", n,
           "p", p, "sigma", sigma, "pc", p_c, "ps", p_s, ".rds"
         ))
         n_iter <- length(out_res)
@@ -226,7 +226,7 @@ for (iter_set in seq_len(nrow(set_df))) {
     for (p_c in p_c_vec) {
       for (p_s in p_s_vec) {
         out_res <- readRDS(paste0(
-          "Section3/simulation_code/K2/results/K", K, "n", n,
+          "Section3/simulation_code/K5/results/K", K, "n", n,
           "p", p, "sigma", sigma, "pc", p_c, "ps", p_s, ".rds"
         ))
         n_iter <- length(out_res)
@@ -245,7 +245,7 @@ for (iter_set in seq_len(nrow(set_df))) {
 
 ############################### plot one figure ###############################
 ## define parameters
-K <- 2
+K <- 5
 sigma <- 1
 p_c <- 10
 p_s <- 2
@@ -253,7 +253,7 @@ p_s <- 2
 n <- 100
 p <- 600
 out_res <- readRDS(paste0(
-  "Section3/simulation_code/K2/results/K", K, "n", n,
+  "Section3/simulation_code/K5/results/K", K, "n", n,
   "p", p, "sigma", sigma, "pc", p_c, "ps", p_s, ".rds"
 ))
 n_iter <- length(out_res)
@@ -297,7 +297,7 @@ p2 <- ggplot(out_prec, aes(x = group, y = prec, fill = group)) +
 n <- 500
 p <- 1000
 out_res <- readRDS(paste0(
-  "Section3/simulation_code/K2/results/K", K, "n", n,
+  "Section3/simulation_code/K5/results/K", K, "n", n,
   "p", p, "sigma", sigma, "pc", p_c, "ps", p_s, ".rds"
 ))
 n_iter <- length(out_res)
@@ -356,7 +356,7 @@ shared_legend <- extract_legend(p4_legends)
 
 ## output figure
 pdf(file = paste0(
-  "Section3/simulation_code/K2/results/K", K, "n", n,
+  "Section3/simulation_code/K5/results/K", K, "n", n,
   "p", p, "sigma", sigma, ".pdf"
 ), width = 16, height = 16)
 print(grid.arrange(arrangeGrob(p1, p3, p2, p4, ncol = 2, nrow = 2),
