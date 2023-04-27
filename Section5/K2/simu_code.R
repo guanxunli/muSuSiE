@@ -162,7 +162,6 @@ saveRDS(out_res, paste0("Section5/K2/results/jointGES_com", e_com, "pri", e_pri,
 print("Finish joint GES.")
 
 ############### muSuSiE ###########
-set.seed(2021)
 source("utility/graph_mcmc_multi.R")
 #### define prior
 prior_pi_list <- list()
@@ -202,6 +201,7 @@ for (iter_prior in seq_len(n_prior)) {
   out_res <- list()
   prior_vec <- prior_vec_list[[iter_prior]]
   ## do parallel
+  set.seed(2021)
   cl <- makeCluster(50)
   registerDoParallel(cl)
   out_res <- foreach(iter = seq_len(n_graph)) %dorng% {
@@ -222,7 +222,7 @@ for (iter_prior in seq_len(n_prior)) {
     order_int <- as.numeric(igraph::topo_sort(graph_i))
     # Do MCMC
     res <- Graph_MCMC_multi(
-      dta_list = graph_sim$X[[iter]], scale_x = TRUE, intercept = FALSE,
+      dta_list = graph_sim$X[[iter]], scale_x = FALSE, intercept = TRUE,
       order_int = order_int, iter_max = iter_max,
       prior_vec = prior_vec, itermax = 100, L_max = 10,
       burn_in = iter_max - 5000
