@@ -30,8 +30,8 @@ graph_generation <- function(K = 2, n_tol = 600, p = 100, e_com = 100, e_pri = 3
       G[[iter_graph]][[iter_K]][lower.tri(G[[iter_graph]][[iter_K]])][c(edge_com, edge_pri)] <- 1
       # generate weight
       A[[iter_graph]][[iter_K]] <- matrix(0, nrow = p, ncol = p)
-      A[[iter_graph]][[iter_K]][which(G[[iter_graph]][[iter_K]] == 1)] <- 
-        2 *  (rbinom(e_com + e_pri, 1, 0.5) - 1/2) * runif(e_com + e_pri, min = min_sig, max = 1)
+      A[[iter_graph]][[iter_K]][which(G[[iter_graph]][[iter_K]] == 1)] <-
+        2 * (rbinom(e_com + e_pri, 1, 0.5) - 1 / 2) * runif(e_com + e_pri, min = min_sig, max = 1)
       # generate data
       err_var <- runif(1, min = low_err_var, max = upp_err_var)
       err_vec <- matrix(rnorm(n * p, mean = 0, sd = sqrt(err_var)), ncol = n)

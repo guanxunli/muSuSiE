@@ -5,8 +5,8 @@ p <- 100
 n_tol <- 600
 K <- 2
 n <- n_tol / K
-e_com <- 50 # 50 100 100
-e_pri <- 50 # 50 50 20
+e_com <- 100 # 50 100 100
+e_pri <- 20 # 50 50 20
 
 ####### generate graphs ##############
 library(foreach)
@@ -22,7 +22,7 @@ graph_sim <- graph_generation(
 
 ############### PC method ###########
 set.seed(2021)
-alphas = c(0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05)
+alphas <- c(0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05)
 pc_fun <- function(dta, alphas = c(0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05)) {
   p <- ncol(dta)
   dta_cor <- cor(dta)
@@ -40,7 +40,7 @@ pc_fun <- function(dta, alphas = c(0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05)) {
   return(dag_list)
 }
 
-cl <- makeCluster(25)
+cl <- makeCluster(50)
 registerDoParallel(cl)
 out_res <- foreach(iter = seq_len(n_graph)) %dorng% {
   library(pcalg)
@@ -57,12 +57,12 @@ out_res <- foreach(iter = seq_len(n_graph)) %dorng% {
   return(list(dag_list = dag_list, time_use = time_use))
 }
 stopCluster(cl)
-saveRDS(out_res, "Section5/K2/results/pc_com", e_com, "pri", e_pri, ".rds")
+saveRDS(out_res, paste0("Section5/K2/results/pc_com", e_com, "pri", e_pri, ".rds"))
 print("Finish PC.")
 
 ############### GES method ###########
 set.seed(2021)
-lambdas = c(1, 2, 3, 4, 5)
+lambdas <- c(1, 2, 3, 4, 5)
 ges_fun <- function(dta, lambdas = c(1, 2, 3, 4, 5)) {
   p <- ncol(dta)
   dag_list <- list()
@@ -76,7 +76,7 @@ ges_fun <- function(dta, lambdas = c(1, 2, 3, 4, 5)) {
   return(dag_list)
 }
 
-cl <- makeCluster(25)
+cl <- makeCluster(50)
 registerDoParallel(cl)
 out_res <- foreach(iter = seq_len(n_graph)) %dorng% {
   time1 <- Sys.time()
@@ -92,12 +92,12 @@ out_res <- foreach(iter = seq_len(n_graph)) %dorng% {
   return(list(dag_list = dag_list, time_use = time_use))
 }
 stopCluster(cl)
-saveRDS(out_res, "Section5/K2/results/GES_com", e_com, "pri", e_pri, ".rds")
+saveRDS(out_res, paste0("Section5/K2/results/GES_com", e_com, "pri", e_pri, ".rds"))
 print("Finish GES.")
 
 ############### joint GES ###########
 set.seed(2021)
-lambdas = c(1, 2, 3, 4, 5)
+lambdas <- c(1, 2, 3, 4, 5)
 #### joint GES method the first step
 ges_joint_fun <- function(data, lambdas = c(1, 2, 3, 4, 5)) {
   source("Section5/newclass.R")
@@ -106,8 +106,8 @@ ges_joint_fun <- function(data, lambdas = c(1, 2, 3, 4, 5)) {
   for (iter_lambda in seq_len(length(lambdas))) {
     lambda <- lambdas[iter_lambda]
     l0score <- new("MultiGaussL0pen",
-                   data = data, lambda = lambda * log(p),
-                   intercept = FALSE, use.cpp = FALSE
+      data = data, lambda = lambda * log(p),
+      intercept = FALSE, use.cpp = FALSE
     )
     ges_fit <- ges(l0score)
     dag <- as(ges_fit$essgraph, "matrix")
@@ -140,7 +140,7 @@ ges_alg <- function(dag_list, dta) {
   return(adj_list)
 }
 
-cl <- makeCluster(25)
+cl <- makeCluster(50)
 registerDoParallel(cl)
 out_res <- foreach(iter = seq_len(n_graph)) %dorng% {
   library(pcalg)
@@ -158,7 +158,7 @@ out_res <- foreach(iter = seq_len(n_graph)) %dorng% {
   return(list(dag_list = dag_list, time_use = time_use))
 }
 stopCluster(cl)
-saveRDS(out_res, "Section5/K2/results/jointGES_com", e_com, "pri", e_pri, ".rds")
+saveRDS(out_res, paste0("Section5/K2/results/jointGES_com", e_com, "pri", e_pri, ".rds"))
 print("Finish joint GES.")
 
 ############### muSuSiE ###########
@@ -173,7 +173,6 @@ prior_pi_list[[4]] <- c(1 / (2 * p^2), 1 / p^2.25)
 n_prior <- length(prior_pi_list)
 prior_vec_list <- list()
 for (iter_pi in seq_len(n_prior)) {
-  print(iter_pi)
   n_group <- 2^K - 1
   com_list <- list()
   com_mat <- matrix(c(0, 1), ncol = 1)
@@ -184,7 +183,7 @@ for (iter_pi in seq_len(n_prior)) {
     com_mat <- rbind(com_mat_copy, com_mat)
   }
   com_mat <- com_mat[-1, ]
-  
+
   for (iter_com in seq_len(n_group)) {
     com_list[[iter_com]] <- which(com_mat[iter_com, ] == 1)
   }
@@ -199,10 +198,11 @@ for (iter_pi in seq_len(n_prior)) {
 #### simulations
 iter_max <- 1e5
 for (iter_prior in seq_len(n_prior)) {
+  print(iter_prior)
   out_res <- list()
   prior_vec <- prior_vec_list[[iter_prior]]
   ## do parallel
-  cl <- makeCluster(25)
+  cl <- makeCluster(50)
   registerDoParallel(cl)
   out_res <- foreach(iter = seq_len(n_graph)) %dorng% {
     library(pcalg)
@@ -231,5 +231,5 @@ for (iter_prior in seq_len(n_prior)) {
     return(list(res = res, time_use = time_use))
   }
   stopCluster(cl)
-  saveRDS(out_res, "Section5/K2/results/muSuSiE_prior", iter_prior, "com", e_com, "pri", e_pri, ".rds")
+  saveRDS(out_res, paste0("Section5/K2/results/muSuSiE_prior", iter_prior, "com", e_com, "pri", e_pri, ".rds"))
 }

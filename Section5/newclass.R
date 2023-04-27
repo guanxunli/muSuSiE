@@ -59,46 +59,50 @@ set.seed(1)
 }
 
 setRefClass("MultiGaussL0pen",
-	contains = "GaussL0penObsScore",
-	fields = list(
-		.gauss.vec = "list"),
+  contains = "GaussL0penObsScore",
+  fields = list(
+    .gauss.vec = "list"
+  ),
+  methods = list(
+    #' Constructor
+    initialize = function(data = list(matrix(1, 1, 1)),
+                          nodes = colnames(data[[1]]),
+                          lambda = 0,
+                          intercept = FALSE,
+                          format = c("raw", "scatter"),
+                          use.cpp = FALSE,
+                          ...) {
+      # transform the data format
+      .gauss.vec <<- lapply(data, function(x) {
+        new("GaussL0penObsScore",
+          data = x,
+          lambda = lambda / length(data),
+          intercept = intercept,
+          use.cpp = TRUE
+        )
+      })
+      data <- do.call(rbind, data)
 
-	methods = list(
-		#' Constructor
-		initialize = function(data = list(matrix(1,1,1)),
-		nodes = colnames(data[[1]]),
-		lambda = 0,
-		intercept = FALSE,
-		format = c("raw", "scatter"),
-		use.cpp = FALSE,
-		...) {
-			#transform the data format
-			.gauss.vec <<- lapply(data, function(x) 
-				new("GaussL0penObsScore", 
-					data =  x,
-					lambda = lambda / length(data), 
-					intercept = intercept,
-					use.cpp = TRUE))
-			data = do.call(rbind, data)
+      # call super class
+      callSuper(
+        data = data,
+        nodes = nodes,
+        lambda = lambda,
+        intercept = intercept,
+        format = format,
+        use.cpp = use.cpp,
+        ...
+      )
+    },
 
-			#call super class
-			callSuper(data = data,
-				nodes = nodes,
-				lambda = lambda,
-				intercept = intercept,
-				format = format,
-				use.cpp = use.cpp,
-				...)
-		},
+    #' Calculates the local score of a vertex and its parents
+    local.score = function(vertex, parents, ...) {
+      return(sum(sapply(.gauss.vec, function(x) x$local.score(vertex, parents))))
+    },
 
-		#' Calculates the local score of a vertex and its parents
-		local.score = function(vertex, parents, ...) {
-			return(sum(sapply(.gauss.vec, function(x) x$local.score(vertex, parents))))
-		},
-
-		#' Calculates the local mle
-		local.fit = function(vertex, parents, ...) {
-			return(c(sapply(.gauss.vec, function(x) x$local.fit(vertex, parents))))
-		}
-	)
+    #' Calculates the local mle
+    local.fit = function(vertex, parents, ...) {
+      return(c(sapply(.gauss.vec, function(x) x$local.fit(vertex, parents))))
+    }
+  )
 )
