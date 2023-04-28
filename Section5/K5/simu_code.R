@@ -40,7 +40,7 @@ pc_fun <- function(dta, alphas = c(0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05)) {
   return(dag_list)
 }
 
-cl <- makeCluster(25)
+cl <- makeCluster(50)
 registerDoParallel(cl)
 out_res <- foreach(iter = seq_len(n_graph)) %dorng% {
   library(pcalg)
@@ -76,7 +76,7 @@ ges_fun <- function(dta, lambdas = c(1, 2, 3, 4, 5)) {
   return(dag_list)
 }
 
-cl <- makeCluster(25)
+cl <- makeCluster(50)
 registerDoParallel(cl)
 out_res <- foreach(iter = seq_len(n_graph)) %dorng% {
   time1 <- Sys.time()
@@ -140,7 +140,7 @@ ges_alg <- function(dag_list, dta) {
   return(adj_list)
 }
 
-cl <- makeCluster(25)
+cl <- makeCluster(50)
 registerDoParallel(cl)
 out_res <- foreach(iter = seq_len(n_graph)) %dorng% {
   library(pcalg)
@@ -202,7 +202,7 @@ for (iter_prior in seq_len(n_prior)) {
   out_res <- list()
   prior_vec <- prior_vec_list[[iter_prior]]
   ## do parallel
-  cl <- makeCluster(25)
+  cl <- makeCluster(50)
   registerDoParallel(cl)
   out_res <- foreach(iter = seq_len(n_graph)) %dorng% {
     library(pcalg)

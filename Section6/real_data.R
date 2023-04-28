@@ -25,7 +25,7 @@ stabs_pc <- function(x, y, q, ...) {
   dt <- data[[idx]][sample(1:totcol, as.integer(0.9 * totcol), replace = FALSE), ]
   # dt <- data[[idx]]
   p <- ncol(dt)
-  
+
   # train the model
   alphas <- c(0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05)
   model_alpha <- function(alpha) {
@@ -37,7 +37,7 @@ stabs_pc <- function(x, y, q, ...) {
     dag <- as(pc_fit@graph, "matrix")
     as.vector(dag != 0)
   }
-  
+
   # get the path and selected variables
   path <- sapply(alphas, model_alpha)
   selected <- rowSums(path) != 0
@@ -54,7 +54,7 @@ pcdag_fun <- function(cutoff) {
 
 time1 <- Sys.time()
 pcdag_list <- mclapply(cutoff_vec, pcdag_fun,
-                       mc.cores = length(cutoff_vec)
+  mc.cores = length(cutoff_vec)
 )
 print(Sys.time() - time1)
 saveRDS(pcdag_list, "Section6/results/out_pc.rds")
@@ -72,14 +72,16 @@ for (iter in seq_len(length(cutoff_vec))) {
     ## data set 2
     pc_adj2 <- matrix(as.vector(pcdag_list_tmp[[2]]$max > cutoff), nrow = p, ncol = p)
     pc_adj2 <- pc_adj2 | t(pc_adj2)
-    n2 <-  sum(pc_adj2) / 2
+    n2 <- sum(pc_adj2) / 2
     ## intersections
     pc_adj <- pc_adj1 & pc_adj2
     n_com <- sum(pc_adj) / 2
     n_total <- n1 + n2 - n_com
     n_ratio <- n_com / n_total
-    cat("PC &", cutoff_vec[iter], "&", cutoff, "&", n1, "&", n2, "&", n_com,
-        "&", n_total, "&", round(n_ratio, 4), "\\\\\n")
+    cat(
+      "PC &", cutoff_vec[iter], "&", cutoff, "&", n1, "&", n2, "&", n_com,
+      "&", n_total, "&", round(n_ratio, 4), "\\\\\n"
+    )
   }
 }
 
@@ -103,7 +105,7 @@ stab_ges <- function(x, y, q, ...) {
   totcol <- nrow(data[[idx]])
   dt <- data[[idx]][sample(1:totcol, as.integer(0.9 * totcol), replace = FALSE), ]
   # dt <- data[[idx]]
-  
+
   # train the model
   lambdas <- c(1, 2, 3, 4, 5)
   model_lambda <- function(lambda) {
@@ -112,7 +114,7 @@ stab_ges <- function(x, y, q, ...) {
     dag <- as(ges_fit$essgraph, "matrix")
     as.vector(dag != 0)
   }
-  
+
   # get the path and selected variables
   path <- sapply(lambdas, model_lambda)
   selected <- rowSums(path) != 0
@@ -127,7 +129,7 @@ gesdag_fun <- function(cutoff) {
 }
 time1 <- Sys.time()
 gesdag_list <- mclapply(cutoff_vec, gesdag_fun,
-                        mc.cores = length(cutoff_vec)
+  mc.cores = length(cutoff_vec)
 )
 saveRDS(gesdag_list, "Section6/results/out_ges.rds")
 print(Sys.time() - time1)
@@ -152,8 +154,10 @@ for (iter in seq_len(length(cutoff_vec))) {
     n_com <- sum(ges_adj) / 2
     n_total <- n1 + n2 - n_com
     n_ratio <- n_com / n_total
-    cat("GES &", cutoff_vec[iter], "&", cutoff, "&", n1, "&", n2, "&", n_com,
-        "&", n_total, "&", round(n_ratio, 4), "\\\\\n")
+    cat(
+      "GES &", cutoff_vec[iter], "&", cutoff, "&", n1, "&", n2, "&", n_com,
+      "&", n_total, "&", round(n_ratio, 4), "\\\\\n"
+    )
   }
 }
 
@@ -233,7 +237,7 @@ for (iter in seq_len(length(cutoff_vec))) {
     cutoff <- cutoff_vec2[iter2]
     dag <- matrix(as.vector(stab_result$max > cutoff), nrow = p, ncol = p)
     dag <- as(dag, "graphNEL")
-    
+
     gesdag <- ges_alg(data, dag)
     ## data set 1 results
     ges_joint_graph1 <- gesdag[[1]]
@@ -241,22 +245,24 @@ for (iter in seq_len(length(cutoff_vec))) {
     ges_joint_graph1 <- ifelse(ges_joint_graph1 == 1, TRUE, FALSE)
     ges_joint_graph1 <- ges_joint_graph1 | t(ges_joint_graph1)
     n1 <- sum(ges_joint_graph1) / 2
-    
+
     ## data set 2
     ges_joint_graph2 <- gesdag[[2]]
     ges_joint_graph2 <- as(ges_joint_graph2, "matrix")
     ges_joint_graph2 <- ifelse(ges_joint_graph2 == 1, TRUE, FALSE)
     ges_joint_graph2 <- ges_joint_graph2 | t(ges_joint_graph2)
     n2 <- sum(ges_joint_graph2) / 2
-    
+
     ## intersections
     ges_joint_graph <- ges_joint_graph1 & ges_joint_graph2
     n_com <- sum(ges_joint_graph) / 2
     n_total <- n1 + n2 - n_com
     n_ratio <- n_com / n_total
     ## check results
-    cat("joint GES &", cutoff_vec[iter], "&", cutoff, "&", n1, "&", n2, "&", n_com,
-        "&", n_total, "&", round(n_ratio, 4), "\\\\\n")
+    cat(
+      "joint GES &", cutoff_vec[iter], "&", cutoff, "&", n1, "&", n2, "&", n_com,
+      "&", n_total, "&", round(n_ratio, 4), "\\\\\n"
+    )
   }
 }
 print(Sys.time() - time1)
@@ -300,10 +306,10 @@ registerDoParallel(cl)
 out_res <- foreach(iter_prior = seq_len(length(prior_vec_list))) %dorng% {
   prior_vec <- prior_vec_list[[iter_prior]]
   Graph_MCMC_two(dta_1, dta_2,
-                 scale_x = scale_x, intercept = intercept,
-                 order_int = order_int, iter_max = iter_max, sigma02_int = NULL, sigma2_int = NULL,
-                 prior_vec = prior_vec, itermax = 100, tol = 1e-4, sigma0_low_bd = 1e-8,
-                 burn_in = iter_max - 5000
+    scale_x = scale_x, intercept = intercept,
+    order_int = order_int, iter_max = iter_max, sigma02_int = NULL, sigma2_int = NULL,
+    prior_vec = prior_vec, itermax = 100, tol = 1e-4, sigma0_low_bd = 1e-8,
+    burn_in = iter_max - 5000
   )
 }
 stopCluster(cl)
@@ -333,6 +339,8 @@ for (iter_prior in seq_len(length(prior_vec_list))) {
   n_total <- n1 + n2 - n_com
   n_ratio <- n_com / n_total
   ## check results
-  cat("muSuSiE-DAG &", prior[1], "&", prior[2], "&", n1, "&", n2, "&", n_com,
-      "&", n_total, "&", round(n_ratio, 4), "\\\\\n")
+  cat(
+    "muSuSiE-DAG &", prior[1], "&", prior[2], "&", n1, "&", n2, "&", n_com,
+    "&", n_total, "&", round(n_ratio, 4), "\\\\\n"
+  )
 }

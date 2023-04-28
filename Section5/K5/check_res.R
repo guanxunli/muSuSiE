@@ -59,7 +59,7 @@ for (iter_K in seq_len(K)) {
 }
 for (iter_alpha in seq_len(length(alphas))) {
   for (iter_K in seq_len(K)) {
-    res[[iter_K]][[iter_alpha]] <- matrix(NA, nrow = n_graph, ncol = 7)
+    res[[iter_K]][[iter_alpha]] <- matrix(NA, nrow = n_graph, ncol = 4)
   }
   for (iter_graph in seq_len(n_graph)) {
     for (iter_K in seq_len(K)) {
@@ -81,7 +81,7 @@ for (iter_alpha in seq_len(length(alphas))) {
 
 res_ave <- list()
 for (iter_alpha in seq_len(length(alphas))) {
-  res_ave[[iter_alpha]] <- matrix(0, nrow = n_graph, ncol = 7)
+  res_ave[[iter_alpha]] <- matrix(0, nrow = n_graph, ncol = 4)
   for (iter_K in seq_len(K)) {
     res_ave[[iter_alpha]] <- res_ave[[iter_alpha]] + res[[iter_K]][[iter_alpha]]
   }
@@ -107,7 +107,7 @@ for (iter_K in seq_len(K)) {
 }
 for (iter_lambda in seq_len(length(lambdas))) {
   for (iter_K in seq_len(K)) {
-    res[[iter_K]][[iter_lambda]] <- matrix(NA, nrow = n_graph, ncol = 7)
+    res[[iter_K]][[iter_lambda]] <- matrix(NA, nrow = n_graph, ncol = 4)
   }
   for (iter_graph in seq_len(n_graph)) {
     for (iter_K in seq_len(K)) {
@@ -129,7 +129,7 @@ for (iter_lambda in seq_len(length(lambdas))) {
 
 res_ave <- list()
 for (iter_lambda in seq_len(length(lambdas))) {
-  res_ave[[iter_lambda]] <- matrix(0, nrow = n_graph, ncol = 7)
+  res_ave[[iter_lambda]] <- matrix(0, nrow = n_graph, ncol = 4)
   for (iter_K in seq_len(K)) {
     res_ave[[iter_lambda]] <- res_ave[[iter_lambda]] + res[[iter_K]][[iter_lambda]]
   }
@@ -155,7 +155,7 @@ for (iter_K in seq_len(K)) {
 }
 for (iter_lambda in seq_len(length(lambdas))) {
   for (iter_K in seq_len(K)) {
-    res[[iter_K]][[iter_lambda]] <- matrix(NA, nrow = n_graph, ncol = 7)
+    res[[iter_K]][[iter_lambda]] <- matrix(NA, nrow = n_graph, ncol = 4)
   }
   for (iter_graph in seq_len(n_graph)) {
     for (iter_K in seq_len(K)) {
@@ -177,7 +177,7 @@ for (iter_lambda in seq_len(length(lambdas))) {
 
 res_ave <- list()
 for (iter_lambda in seq_len(length(lambdas))) {
-  res_ave[[iter_lambda]] <- matrix(0, nrow = n_graph, ncol = 7)
+  res_ave[[iter_lambda]] <- matrix(0, nrow = n_graph, ncol = 4)
   for (iter_K in seq_len(K)) {
     res_ave[[iter_lambda]] <- res_ave[[iter_lambda]] + res[[iter_K]][[iter_lambda]]
   }
@@ -195,15 +195,17 @@ for (iter_lambda in seq_len(length(lambdas))) {
 
 ############################# muSuSiE-DAG #############################
 for (iter_prior in seq_len(4)) {
-  out_res <- readRDS(paste0("Section5/K5/results/muSuSiE_prior", iter_prior,
-                            "com", e_com, "pri", e_pri, ".rds"))
+  out_res <- readRDS(paste0(
+    "Section5/K5/results/muSuSiE_prior", iter_prior,
+    "com", e_com, "pri", e_pri, ".rds"
+  ))
   ## check results
   res <- list()
   for (iter_K in seq_len(K)) {
-    res[[iter_K]] <- matrix(NA, nrow = n_graph, ncol = 7)
+    res[[iter_K]] <- matrix(NA, nrow = n_graph, ncol = 4)
   }
-  res_ave <- matrix(0, nrow = n_graph, ncol = 7)
-  
+  res_ave <- matrix(0, nrow = n_graph, ncol = 4)
+
   for (iter_graph in seq_len(n_graph)) {
     res_tmp <- out_res[[iter_graph]][[1]]
     A_mat_list <- res_tmp$A_list
