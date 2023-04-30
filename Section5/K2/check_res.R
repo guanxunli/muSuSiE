@@ -48,6 +48,11 @@ check_adj_l2 <- function(adj_pre, adj_act) {
   adj_act <- ceiling((adj_act + t(adj_act)) / 2)
   return(sum((adj_pre - adj_act)^2) / 2)
 }
+check_adj_mcmc <- function(adj_pre, adj_act) {
+  adj_pre <- adj_pre + t(adj_pre)
+  adj_act <- adj_act + t(adj_act)
+  return(sum((adj_pre - adj_act)^2) / 2)
+}
 
 ############################# PC method ##########################
 alphas <- c(0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05)
@@ -221,7 +226,7 @@ for (iter_prior in seq_len(4)) {
         check_edge(adj_true, adj),
         TPrate_fun(adj_pre = adj, adj_act = adj_true),
         FPrate_fun(adj_pre = adj, adj_act = adj_true),
-        check_adj_l2(adj_pre = alpha_mat_list[[iter_K]], adj_act = adj_true)
+        check_adj_mcmc(adj_pre = alpha_mat_list[[iter_K]], adj_act = adj_true)
       )
     }
   }

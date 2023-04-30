@@ -36,14 +36,16 @@ for (iter_alpha in seq_len(length(alphas))) {
   n_total <- n1 + n2 - n_com
   n_ratio <- n_com / n_total
   ## check results
-  cat("PC & $\\alpha = ", alpha_use, "$&", n1, "&", n2, "&", n_com,
-      "&", n_total, "&", round(n_ratio, 4), "\\\\\n")
+  cat(
+    "PC & $\\alpha = ", alpha_use, "$&", n1, "&", n2, "&", n_com,
+    "&", n_total, "&", round(n_ratio, 4), "\\\\\n"
+  )
   # cat("alpha: ", alpha_use, c(sum(pc_adj1), sum(pc_adj2), sum(pc_adj)) / 2, "\n")
 }
 
 ######################### GES method ########################
 set.seed(1)
-intercept_use <- FALSE
+intercept_use <- TRUE
 lambdas <- c(1, 2, 3, 4, 5)
 
 ges_fun <- function(dta, lambda) {
@@ -67,24 +69,25 @@ for (iter_lambda in seq_len(length(lambdas))) {
   n_total <- n1 + n2 - n_com
   n_ratio <- n_com / n_total
   ## check results
-  cat("GES & $\\lambda = ", lambda_use, "$&", n1, "&", n2, "&", n_com,
-      "&", n_total, "&", round(n_ratio, 4), "\\\\\n")
+  cat(
+    "GES & $\\lambda = ", lambda_use, "$&", n1, "&", n2, "&", n_com,
+    "&", n_total, "&", round(n_ratio, 4), "\\\\\n"
+  )
   # cat("lambda: ", lambda_use, c(sum(ges_adj1), sum(ges_adj2), sum(ges_adj)) / 2, "\n")
 }
 ######################### joint GES method ########################
 set.seed(1)
 intercept_use <- FALSE
-source("Section6/newclass.R")
 lambdas <- c(1, 2, 3, 4, 5)
 
 ## Joint GES the first step
 ges_joint_fun <- function(data, lambda) {
-  source("real_data/newclass.R")
+  source("Section6/newclass.R")
   p <- ncol(data[[1]])
   dag_list <- list()
   l0score <- new("MultiGaussL0pen",
-                 data = data, lambda = lambda * log(p),
-                 intercept = intercept_use, use.cpp = FALSE
+    data = data, lambda = lambda * log(p),
+    intercept = intercept_use, use.cpp = FALSE
   )
   ges_fit <- ges(l0score)
   dag <- as(ges_fit$essgraph, "matrix")
@@ -133,25 +136,24 @@ for (iter in seq_len(length(lambdas))) {
   n_total <- n1 + n2 - n_com
   n_ratio <- n_com / n_total
   ## check results
-  cat("joint GES &$\\lambda = ", lambda_use, "$&", n1, "&", n2, "&", n_com,
-      "&", n_total, "&", round(n_ratio, 4), "\\\\\n")
+  cat(
+    "joint GES &$\\lambda = ", lambda_use, "$&", n1, "&", n2, "&", n_com,
+    "&", n_total, "&", round(n_ratio, 4), "\\\\\n"
+  )
 }
 
 
 ######################### muSuSiE method ########################
 set.seed(1)
-dta_1 <- data[[1]]
-dta_2 <- data[[2]]
-
 ## generate graph
 source("utility/graph_mcmc_multi.R")
 prior_vec_list <- list()
-prior_vec_list[[1]] <- c(1 / p^1.25, 1 / p^2)
-prior_vec_list[[2]] <- c(1 / p^1.5, 1 / p^2.5)
-prior_vec_list[[3]] <- c(1 / (2 * p^1.5), 1 / p^2)
-prior_vec_list[[4]] <- c(1 / p^2, 1 / p^3.5)
-prior_vec_list[[5]] <- c(1 / (2 * p^2), 1 / p^3.5)
-prior_vec_list[[6]] <- c(1 / p^2, 1 / p^2)
+prior_vec_list[[1]] <- c(1 / p^1.25, 1 / p^1.25, 1 / p^2)
+prior_vec_list[[2]] <- c(1 / p^1.5, 1 / p^1.5, 1 / p^2.5)
+prior_vec_list[[3]] <- c(1 / (2 * p^1.5), 1 / (2 * p^1.5), 1 / p^2)
+prior_vec_list[[4]] <- c(1 / p^2, 1 / p^2, 1 / p^3.5)
+prior_vec_list[[5]] <- c(1 / (2 * p^2), 1 / (2 * p^2), 1 / p^3.5)
+prior_vec_list[[6]] <- c(1 / p^2, 1 / p^2, 1 / p^2)
 
 scale_x <- FALSE
 intercept <- TRUE # can't get two graphs if setting false
@@ -159,7 +161,7 @@ iter_max <- 1e5
 
 #### Do MCMC with order
 ## get order
-dta <- rbind(dta_1, dta_2)
+dta <- rbind(data[[1]], data[[2]])
 # order_int <- NULL
 score_ges <- new("GaussL0penObsScore", data = dta, intercept = FALSE)
 ges_fit <- ges(score_ges)
@@ -176,11 +178,11 @@ cl <- makeCluster(length(prior_vec_list))
 registerDoParallel(cl)
 out_res <- foreach(iter_prior = seq_len(length(prior_vec_list))) %dorng% {
   prior_vec <- prior_vec_list[[iter_prior]]
-  Graph_MCMC_two(dta_1, dta_2,
-                 scale_x = scale_x, intercept = intercept,
-                 order_int = order_int, iter_max = iter_max, sigma02_int = NULL, sigma2_int = NULL,
-                 prior_vec = prior_vec, itermax = 100, tol = 1e-4, sigma0_low_bd = 1e-8,
-                 burn_in = iter_max - 5000
+  Graph_MCMC_multi(data,
+    scale_x = scale_x, intercept = intercept,
+    order_int = order_int, iter_max = iter_max, sigma02_int = NULL, sigma2_int = NULL,
+    prior_vec = prior_vec, itermax = 100, tol = 1e-4, sigma0_low_bd = 1e-8,
+    burn_in = iter_max - 5000
   )
 }
 stopCluster(cl)

@@ -4,8 +4,8 @@ p <- 100
 n_tol <- 1200
 K <- 5
 n <- n_tol / K
-e_com <- 100 # 50 100 100
-e_pri <- 20 # 50 50 20
+e_com <- 50 # 50 100 100
+e_pri <- 50 # 50 50 20
 
 ####### generate graphs ##############
 library(foreach)
@@ -46,6 +46,11 @@ FPrate_fun <- function(adj_pre, adj_act) {
 check_adj_l2 <- function(adj_pre, adj_act) {
   adj_pre <- ceiling((adj_pre + t(adj_pre)) / 2)
   adj_act <- ceiling((adj_act + t(adj_act)) / 2)
+  return(sum((adj_pre - adj_act)^2) / 2)
+}
+check_adj_mcmc <- function(adj_pre, adj_act) {
+  adj_pre <- adj_pre + t(adj_pre)
+  adj_act <- adj_act + t(adj_act)
   return(sum((adj_pre - adj_act)^2) / 2)
 }
 
@@ -221,7 +226,7 @@ for (iter_prior in seq_len(4)) {
         check_edge(adj_true, adj),
         TPrate_fun(adj_pre = adj, adj_act = adj_true),
         FPrate_fun(adj_pre = adj, adj_act = adj_true),
-        check_adj_l2(adj_pre = alpha_mat_list[[iter_K]], adj_act = adj_true)
+        check_adj_mcmc(adj_pre = alpha_mat_list[[iter_K]], adj_act = adj_true)
       )
     }
   }
