@@ -7,7 +7,7 @@ library(parallel)
 library(stabs)
 
 ################################ PC method ########################
-set.seed(1)
+set.seed(1234)
 alphas <- c(0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05)
 
 pc_fun <- function(dta, alpha) {
@@ -44,8 +44,8 @@ for (iter_alpha in seq_len(length(alphas))) {
 }
 
 ######################### GES method ########################
-set.seed(1)
-intercept_use <- TRUE
+set.seed(1234)
+intercept_use <- FALSE
 lambdas <- c(1, 2, 3, 4, 5)
 
 ges_fun <- function(dta, lambda) {
@@ -76,7 +76,7 @@ for (iter_lambda in seq_len(length(lambdas))) {
   # cat("lambda: ", lambda_use, c(sum(ges_adj1), sum(ges_adj2), sum(ges_adj)) / 2, "\n")
 }
 ######################### joint GES method ########################
-set.seed(1)
+set.seed(1234)
 intercept_use <- FALSE
 lambdas <- c(1, 2, 3, 4, 5)
 
@@ -144,7 +144,7 @@ for (iter in seq_len(length(lambdas))) {
 
 
 ######################### muSuSiE method ########################
-set.seed(1)
+set.seed(1234)
 ## generate graph
 source("utility/graph_mcmc_multi.R")
 prior_vec_list <- list()
@@ -193,11 +193,8 @@ print("Finish muSuSiE-DAG method.")
 ## check results
 for (iter_prior in seq_len(length(prior_vec_list))) {
   res_tmp <- out_res[[iter_prior]]
-  prior <- prior_vec_list[[iter_prior]]
-  alpha_mat_1 <- res_tmp$alpha_mat_1
-  alpha_mat_2 <- res_tmp$alpha_mat_2
-  A_mat_1 <- res_tmp$A_mat_1
-  A_mat_2 <- res_tmp$A_mat_1
+  alpha_mat_1 <- res_tmp$alpha_list[[1]]
+  alpha_mat_2 <- res_tmp$alpha_list[[2]]
   #### Compare results
   ## data set 1
   adj_1 <- ifelse(alpha_mat_1 > 0.5, 1, 0)
@@ -213,7 +210,7 @@ for (iter_prior in seq_len(length(prior_vec_list))) {
   n_ratio <- n_com / n_total
   ## check results
   cat(
-    "muSuSiE-DAG &", prior[1], "&", prior[2], "&", n1, "&", n2, "&", n_com,
+    "muSuSiE-DAG &", n1, "&", n2, "&", n_com,
     "&", n_total, "&", round(n_ratio, 4), "\\\\\n"
   )
 }

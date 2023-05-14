@@ -50,11 +50,11 @@ Graph_MCMC_multi <- function(dta_list, scale_x = FALSE, intercept = TRUE, com_ma
   }
   ## Generate the first graph
   res_old <- joint_graph_multi(dta_old_list,
-                               scale_x = scale_x, intercept = intercept,
-                               sigma02_int = sigma02_int, sigma2_int = sigma2_int, prior_vec = prior_vec,
-                               com_mat = com_mat, com_list = com_list, itermax = itermax, L_max = L_max,
-                               tol = tol, sigma0_low_bd = sigma0_low_bd,
-                               residual_variance_lowerbound = residual_variance_lowerbound
+    scale_x = scale_x, intercept = intercept,
+    sigma02_int = sigma02_int, sigma2_int = sigma2_int, prior_vec = prior_vec,
+    com_mat = com_mat, com_list = com_list, itermax = itermax, L_max = L_max,
+    tol = tol, sigma0_low_bd = sigma0_low_bd,
+    residual_variance_lowerbound = residual_variance_lowerbound
   )
   ## old results
   alpha_res_old <- res_old$alpha_list
@@ -152,7 +152,7 @@ Graph_MCMC_multi <- function(dta_list, scale_x = FALSE, intercept = TRUE, com_ma
     }
     llike_pro <- llike_pro + sum(llike_mat_pro[c(pos_change, pos_change + 1), ]) +
       sum(llike_penalty_pro[c(pos_change, pos_change + 1)])
-    
+
     # accept or not
     if (llike_pro > llike_old) {
       accept <- TRUE
