@@ -51,17 +51,34 @@ mh_seperate <- function(X, Y, state_init = NULL, max_mcmc = 1e5, burn_in = 1e4,
 }
 
 #################### Metropolis Hasting joint ####################
-mh_joint <- function(X1, Y1, X2, Y2, state_init = NULL, max_mcmc = 1e5, burn_in = 1e4,
+mh_joint <- function(dta_list, max_mcmc = 1e5, burn_in = 1e4,
                      kappa0 = 2, kappa1 = 1.5) {
   # Initialization
-  n <- nrow(X1)
-  p <- ncol(X1)
-  if (is.null(state_init)) {
-    state_init <- rep(0, p)
+  K <- length(dta_list)
+  n_group <- 2^K - 1
+  n <- nrow(dta_list[[1]]$X)
+  p <- ncol(dta_list[[1]]$X)
+  state_init <- rep(0, p)
+  com_list <- list()
+  com_mat <- matrix(c(0, 1), ncol = 1)
+  for (iter in 2:K) {
+    com_mat_copy <- com_mat
+    com_mat <- cbind(1, com_mat)
+    com_mat_copy <- cbind(0, com_mat_copy)
+    com_mat <- rbind(com_mat_copy, com_mat)
   }
-  state_curr1 <- state_curr2 <- state_init
-  sum_Y1 <- sum(Y1^2)
-  sum_Y2 <- sum(Y2^2)
+  com_mat <- com_mat[-1, ]
+  for (iter_com in seq_len(n_group)) {
+    com_list[[iter_com]] <- which(com_mat[iter_com, ] == 1)
+  }
+  state_curr_list <- list()
+  for (iter_K in seq_len(K)) {
+    state_curr_list[[iter_K]] <- state_init
+  }
+  sum_list <- list()
+  for (iter_K in seq_len(K)) {
+    sum_list[[iter_K]] <- sum(dta_list[[iter_K]]$Y^2)
+  }
   g <- p^(2 * kappa1) - 1
   # log posterior
   logpost_fun <- function(X, Y, sum_Y, gamma_x) {
@@ -79,47 +96,52 @@ mh_joint <- function(X1, Y1, X2, Y2, state_init = NULL, max_mcmc = 1e5, burn_in 
     }
     return(tmp1 + tmp2 + kappa1 * n * log(p))
   }
-  logpost_curr1 <- logpost_fun(X1, Y1, sum_Y1, state_curr1)
-  logpost_curr2 <- logpost_fun(X2, Y2, sum_Y2, state_curr2)
-  logpost_curr <- logpost_curr1 + logpost_curr2
+  logpost_curr_vec <- numeric(K)
+  for (iter_K in seq_len(K)) {
+    logpost_curr_vec[[iter_K]] <- logpost_fun(
+      dta_list[[iter_K]]$X,
+      dta_list[[iter_K]]$Y,
+      sum_list[[iter_K]],
+      state_curr_list[[iter_K]]
+    )
+  }
+  logpost_curr <- sum(logpost_curr_vec)
   ## begin iteration
-  est_pip1 <- numeric(p)
-  est_pip2 <- numeric(p)
+  est_pip <- list()
+  for (iter_K in seq_len(K)) {
+    est_pip[[iter_K]] <- numeric(p)
+  }
   for (iter_mcmc in seq_len(max_mcmc)) {
     ## propose new state
+    state_prop_list <- state_curr_list
+    logpost_prop_vec <- logpost_curr_vec
     index_prop <- sample(p, 1)
-    dta_prop <- sample(c(1, 2, 3), size = 1, prob = c(1 / 3, 1 / 3, 1 / 3))
-    state_prop1 <- state_curr1
-    state_prop2 <- state_curr2
-    if (dta_prop == 1) {
-      state_prop1[index_prop] <- 1 - state_prop1[index_prop]
-      logpost_prop1 <- logpost_fun(X1, Y1, sum_Y1, state_prop1)
-      logpost_prop2 <- logpost_curr2
-    } else if (dta_prop == 2) {
-      state_prop2[index_prop] <- 1 - state_prop2[index_prop]
-      logpost_prop2 <- logpost_fun(X2, Y2, sum_Y2, state_prop2)
-      logpost_prop1 <- logpost_curr1
-    } else {
-      state_prop1[index_prop] <- 1 - state_prop1[index_prop]
-      logpost_prop1 <- logpost_fun(X1, Y1, sum_Y1, state_prop1)
-      state_prop2[index_prop] <- 1 - state_prop2[index_prop]
-      logpost_prop2 <- logpost_fun(X2, Y2, sum_Y2, state_prop2)
+    gamma_prop <- sample(n_group, 1)
+    dta_prop <- com_list[[gamma_prop]]
+    for (iter_dta in dta_prop) {
+      state_prop_list[[iter_dta]][index_prop] <- 1 - state_prop_list[[iter_dta]][index_prop]
+      logpost_prop_vec[iter_dta] <- logpost_fun(
+        dta_list[[iter_dta]]$X,
+        dta_list[[iter_dta]]$Y,
+        sum_list[[iter_dta]],
+        state_prop_list[[iter_dta]]
+      )
     }
-    logpost_prop <- logpost_prop1 + logpost_prop2
+    logpost_prop <- sum(logpost_prop_vec)
     accept_prob <- min(1, (exp(logpost_prop - logpost_curr)))
     ## accept or nor
     if (runif(1, 0, 1) < accept_prob) {
-      state_curr1 <- state_prop1
-      logpost_curr1 <- logpost_prop1
-      state_curr2 <- state_prop2
-      logpost_curr2 <- logpost_prop2
+      state_curr_list <- state_prop_list
+      logpost_curr_vec <- logpost_prop_vec
     }
     if (iter_mcmc > burn_in) {
-      est_pip1 <- est_pip1 + state_curr1
-      est_pip2 <- est_pip2 + state_curr2
+      for (iter_K in seq_len(K)) {
+        est_pip[[iter_K]] <- est_pip[[iter_K]] + state_curr_list[[iter_K]]
+      }
     }
   }
-  est_pip1 <- est_pip1 / (max_mcmc - burn_in)
-  est_pip2 <- est_pip2 / (max_mcmc - burn_in)
-  return(list(est_pip1 = est_pip1, est_pip2 = est_pip2))
+  for (iter_K in seq_len(K)) {
+    est_pip[[iter_K]] <- est_pip[[iter_K]] / (max_mcmc - burn_in)
+  }
+  return(est_pip)
 }
