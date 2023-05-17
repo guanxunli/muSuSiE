@@ -241,3 +241,41 @@ for (iter_prior in seq_len(4)) {
     res_ave[1], "&", res_ave[2], "&", res_ave[3], "&", res_ave[4], "\\\\", "\n"
   )
 }
+
+############################# KSEC #############################
+out_res <- readRDS( paste0("Section5/K2/results/JESC_com",
+                           e_com, "pri", e_pri, ".rds"))
+## check results
+res <- list()
+for (iter_K in seq_len(K)) {
+  res[[iter_K]] <- matrix(NA, nrow = n_graph, ncol = 4)
+}
+res_ave <- matrix(0, nrow = n_graph, ncol = 4)
+
+for (iter_graph in seq_len(n_graph)) {
+  alpha_mat_list <- out_res[[iter_graph]][[1]]
+  for (iter_K in seq_len(K)) {
+    adj <- ifelse(alpha_mat_list[[iter_K]] > 0.5, 1, 0)
+    adj <- t(adj)
+    g <- as(getGraph(adj), "graphNEL")
+    adj_true <- t(graph_sim$G[[iter_graph]][[iter_K]])
+    g_true <- as(getGraph(adj_true), "graphNEL")
+    ## save results
+    res[[iter_K]][iter_graph, ] <- c(
+      check_edge(adj_true, adj),
+      TPrate_fun(adj_pre = adj, adj_act = adj_true),
+      FPrate_fun(adj_pre = adj, adj_act = adj_true),
+      check_adj_mcmc(adj_pre = alpha_mat_list[[iter_K]], adj_act = adj_true)
+    )
+  }
+}
+# show results
+for (iter_K in seq_len(K)) {
+  res_ave <- res_ave + res[[iter_K]]
+}
+# average results
+res_ave <- round(colMeans(res_ave) / K, 4)
+cat(
+  K, "&", e_com, "&", e_pri, "&",
+  res_ave[1], "&", res_ave[2], "&", res_ave[3], "&", res_ave[4], "\\\\", "\n"
+)
