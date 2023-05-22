@@ -5,8 +5,8 @@ p <- 100
 n_tol <- 600
 K <- 2
 n <- n_tol / K
-e_com <- 100 # 50 100 100
-e_pri <- 20 # 50 50 20
+e_com <- 50 # 50 100 100
+e_pri <- 50 # 50 50 20
 
 ####### generate graphs ##############
 library(foreach)
@@ -22,10 +22,10 @@ graph_sim <- graph_generation(
 
 #### MPenPC method ####
 setwd("Section5/K2/MPenPC/")
-source("JDAG_head.r")
 cl <- makeCluster(50)
 registerDoParallel(cl)
 out_res <- foreach(iter = seq_len(n_graph)) %dorng% {
+  source("JDAG_head.r")
   time1 <- Sys.time()
   ## load data
   data <- graph_sim$X[[iter]]
@@ -38,10 +38,14 @@ out_res <- foreach(iter = seq_len(n_graph)) %dorng% {
     probs_mat[(1 + n * (iter_K - 1)):(n * iter_K), iter_K] <- 1
   }
   res <- SoftGraphs(dat = dta_use, probs.mat = probs_mat, joint = T)
-  dag_list <- res$graphs1
+  res_list <- list(res)
+  res_list <- lapply(res_list, SymmetrizeRes, 'Union')
+  res_list <- lapply(res_list, function(x) list(graphs = x$graphs1, probs = x$probs))
+  dag_list <- SoftPC(res_list[[1]], X = dta_use, alpha = 0.02)
+  dag_list <- lapply(dag_list, function(x) as(x@graph, 'matrix'))
   time_use <- Sys.time() - time1
   return(list(dag_list = dag_list, time_use = time_use))
 }
 stopCluster(cl)
-saveRDS(out_res, paste0("Section5/K2/results/MPenPC_com", e_com, "pri", e_pri, ".rds"))
+saveRDS(out_res, paste0("../results/MPenPC_com", e_com, "pri", e_pri, ".rds"))
 print("Finish MPenPC")

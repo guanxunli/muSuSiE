@@ -108,7 +108,8 @@ p1 <- ggplot(df_plot, aes(x = iteration, y = loglikelihood)) +
     legend.key.size = unit(2.3, "lines"),
     legend.box.margin = margin(t = 0, r = 0),
     legend.title = element_blank()
-  )
+  ) +
+  theme_bw(base_size = 24)
 ggsave(paste0("Section5/mcmc_con/results/", e_com, "pri", e_pri, ".pdf"),
   p1,
   width = 10, height = 5

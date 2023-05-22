@@ -106,7 +106,7 @@ simu_vs_fun <- function(K, n, p, p_c, p_s, sigma, sigma0, prior_vec) {
   for (k in seq_len(K)) {
     res <- mh_seperate(
       X = dta_list[[k]]$X, Y = dta_list[[k]]$Y, state_init = NULL,
-      max_mcmc = 1e5, burn_in = 1e4, kappa0 = 2, kappa1 = 1.5
+      max_mcmc = 5e5, burn_in = 1e5, kappa0 = 1, kappa1 = 1
     )
     index_res_mhs[[k]] <- which(res > 0.5)
     if (length(index_res_mhs[[k]]) == 0) {
@@ -130,8 +130,8 @@ simu_vs_fun <- function(K, n, p, p_c, p_s, sigma, sigma0, prior_vec) {
   ## data set
   time1 <- Sys.time()
   res <- mh_joint(
-    dta_list = dta_list, max_mcmc = 1e5,
-    burn_in = 1e4, kappa0 = 2, kappa1 = 1.5
+    dta_list = dta_list, max_mcmc = 5e5,
+    burn_in = 1e5, kappa0 = 1, kappa1 = 1
   )
   index_res_mhj <- list()
   sens_res_mhj <- rep(NA, K)
@@ -294,7 +294,7 @@ for (iter_set in seq_len(nrow(set_df))) {
         )
         cat(
           p, "&", n, "&", p_c, "&", p_s, "&", sigma^2, "&",
-          round(colMeans(out_df), 4)[c(10, 11, 13, 14)], "\n"
+          round(colMeans(out_df), 4)[c(10, 13, 11, 14)], "\n"
         )
       }
     }

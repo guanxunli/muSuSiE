@@ -1,6 +1,6 @@
 #################### Metropolis Hasting seperate ####################
 mh_seperate <- function(X, Y, state_init = NULL, max_mcmc = 1e5, burn_in = 1e4,
-                        kappa0 = 2, kappa1 = 1.5) {
+                        kappa0 = 1, kappa1 = 1) {
   # Initialization
   n <- nrow(X)
   p <- ncol(X)
@@ -52,7 +52,7 @@ mh_seperate <- function(X, Y, state_init = NULL, max_mcmc = 1e5, burn_in = 1e4,
 
 #################### Metropolis Hasting joint ####################
 mh_joint <- function(dta_list, max_mcmc = 1e5, burn_in = 1e4,
-                     kappa0 = 2, kappa1 = 1.5) {
+                     kappa0 = 1, kappa1 = 1) {
   # Initialization
   K <- length(dta_list)
   n_group <- 2^K - 1
