@@ -95,11 +95,14 @@ p1 <- ggplot(df_plot, aes(x = iteration, y = loglikelihood)) +
   geom_line(aes(x = iteration, y = loglikelihood - sd_loglikelihood), linetype = "dashed", linewidth = 0.5) +
   geom_line(aes(x = iteration, y = loglikelihood + sd_loglikelihood), linetype = "dashed", linewidth = 0.5) +
   ylab("Log likelihood") +
-  xlab("Number of iterations") +
-  scale_x_continuous(
-    breaks = c(0, 2e3, 4e3, 6e3, 8e3, 1e4),
-    labels = c("0K", "200K", "400K", "600K", "800K", "1000K")
-  ) +
+  xlab("Number of iterations")
+for (iter in seq_len(50)) {
+  p1 <- p1  + geom_line(aes(x = iteration), y = loglikelihood_mat[, iter], linewidth = 0.1, alpha = 0.1)
+}
+p1 <- p1 + scale_x_continuous(
+  breaks = c(0, 2e3, 4e3, 6e3, 8e3, 1e4),
+  labels = c("0K", "200K", "400K", "600K", "800K", "1000K")
+) +
   theme(
     axis.title = element_text(size = 24),
     panel.grid.minor = element_line(linewidth = 0.2),
@@ -111,6 +114,6 @@ p1 <- ggplot(df_plot, aes(x = iteration, y = loglikelihood)) +
   ) +
   theme_bw(base_size = 24)
 ggsave(paste0("Section5/mcmc_con/results/", e_com, "pri", e_pri, ".pdf"),
-  p1,
-  width = 10, height = 5
+       p1,
+       width = 10, height = 5
 )

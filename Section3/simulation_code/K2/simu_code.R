@@ -424,8 +424,10 @@ p4_legends <- ggplot(out_prec, aes(x = group, y = prec, fill = group)) +
   ylab("precision") +
   ylim(c(0, 1)) +
   scale_colour_manual(values = c("red", "green4"), breaks = c("multiple", "single")) +
-  theme_bw(base_size = 22) +
-  theme(legend.position = "bottom")
+  # theme_bw(base_size = 22) +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 30),
+        legend.title = element_text(size = 30))
 extract_legend <- function(my_ggp) {
   step1 <- ggplot_gtable(ggplot_build(my_ggp))
   step2 <- which(sapply(step1$grobs, function(x) x$name) == "guide-box")
