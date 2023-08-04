@@ -7,7 +7,7 @@ library(doRNG)
 source("utility/sum_single_effect_multi.R")
 source("Section3/simulation_code/K5/mh_utility.R")
 ## simulation function
-simu_vs_fun <- function(K, n, p, p_c, p_s, sigma, sigma0, prior_vec) {
+simu_vs_fun <- function(K, n, p, p_c, p_s, sigma, sigma0, prior_vec, omega_use) {
   ## Generate data
   index_c <- sample(seq_len(p), size = p_c, replace = FALSE)
   b <- list()
@@ -131,7 +131,7 @@ simu_vs_fun <- function(K, n, p, p_c, p_s, sigma, sigma0, prior_vec) {
   time1 <- Sys.time()
   res <- mh_joint(
     dta_list = dta_list, max_mcmc = 5e5,
-    burn_in = 1e5, kappa0 = 1, kappa1 = 1
+    burn_in = 1e5, kappa1 = 1, omega_use = omega_use
   )
   index_res_mhj <- list()
   sens_res_mhj <- rep(NA, K)
@@ -192,6 +192,7 @@ for (iter_set in seq_len(nrow(set_df))) {
   n <- set_df$n[iter_set]
   p <- set_df$p[iter_set]
   prior_vec <- rep(NA, n_group)
+  omega_use <- c(0, 1.4, 1.55, 1.7, 1.85, 2)
   prior_pi <- c(1 / p^1.4, 1 / p^1.55, 1 / p^1.7, 1 / p^1.85, 1 / p^2)
   for (iter in seq_len(n_group)) {
     prior_vec[iter] <- prior_pi[com_length[[iter]]]

@@ -175,7 +175,7 @@ sum_single_effect_multi <- function(dta_list, scale_x = TRUE, intercept = TRUE,
     ELBO[iter + 1] <- -sum(n) / 2 * log(2 * pi * sigma2) - 1 / (2 * sigma2) * ERSS + KL_div
     # estimate sigma2
     sigma2 <- max(ERSS / sum(n), residual_variance_lowerbound)
-    if (ELBO[iter + 1] - ELBO[iter] < 1e-4) break
+    if (ELBO[iter + 1] - ELBO[iter] < tol) break
   }
 
   ELBO <- as.numeric(na.omit(ELBO[-1]))

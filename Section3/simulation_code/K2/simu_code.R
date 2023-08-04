@@ -130,9 +130,8 @@ simu_vs_fun <- function(K, n, p, p_c, p_s, sigma, sigma0, prior_vec) {
   ## data set
   time1 <- Sys.time()
   res <- mh_joint(
-    X1 = dta_list[[1]]$X, Y1 = dta_list[[1]]$Y, X2 = dta_list[[2]]$X,
-    Y2 = dta_list[[2]]$Y, state_init = NULL, max_mcmc = 5e5,
-    burn_in = 1e5, kappa0 = 1, kappa1 = 1
+    dta_list = dta_list, max_mcmc = 5e5,
+    burn_in = 1e5, kappa1 = 1, omega_use = omega_use
   )
   index_res_mhj <- list()
   sens_res_mhj <- rep(NA, K)
@@ -193,6 +192,7 @@ for (iter_set in seq_len(nrow(set_df))) {
   n <- set_df$n[iter_set]
   p <- set_df$p[iter_set]
   prior_vec <- c(1 / (2 * p^1.1), 1 / (2 * p^1.1), 1 / p^1.25)
+  omega_use <- c(0, (log(2) + 1.1 * log(p)) / log(p), (log(2) + 1.1 * log(p)) / log(p), 1.25)
   for (sigma in sigma_vec) {
     for (p_c in p_c_vec) {
       for (p_s in p_s_vec) {
